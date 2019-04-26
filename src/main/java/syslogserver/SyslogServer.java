@@ -29,6 +29,7 @@ public class SyslogServer extends Thread {
     ServerSocket sock;
     List<String> logToBlockChain = new ArrayList<>(); //list of log
     Web3j web3j = Web3j.build(new HttpService("http://localhost:7545"));
+    
     Credentials credentials = Credentials.create("4b319828ce0d36e10d9453e950408639594756f849cd7ea336509729398f0aed");
     ContractGasProvider contractGasProvider = new DefaultGasProvider();
 
@@ -39,6 +40,7 @@ public class SyslogServer extends Thread {
     @Override
     public void run() {
         try {
+            //0x1AB9a5e75f96daFD4Bb78bCa70125DA9aEE2AF6C Contract on rinkeby
             Greeter contract = Greeter.load("0x487455333Cf07585AE0Ff43eEc37C91251220f0f", web3j, credentials, contractGasProvider);
             while (true) {
                 Socket socket = sock.accept();
