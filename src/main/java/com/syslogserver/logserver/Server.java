@@ -28,16 +28,12 @@ public class Server {
         SyslogServer tcp = new SyslogServer(ss);
 
         tcp.run();
+        
+//        while(true){
+//            
+//        }
 
-//try{
-//    ServerSocket server = new ServerSocket(8000);
-//    while(true){
-//    Socket clientSocket = server.accept();
-//                SyslogServer c = new SyslogServer(clientSocket);
-//    }
-//}catch(Exception e){
-//    System.out.println("ServerSocket " + e);
-//}
+
     }
 
 }
