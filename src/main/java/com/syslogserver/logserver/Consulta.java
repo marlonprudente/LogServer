@@ -5,6 +5,7 @@
  */
 package com.syslogserver.logserver;
 
+import com.syslogserver.Utils.Cryptograph;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Scanner;
@@ -18,9 +19,15 @@ import org.web3j.protocol.http.HttpService;
  */
 public class Consulta {
 
+ 
+    
     public static void main(String[] args) {
         Web3j web3j = Web3j.build(new HttpService("http://127.0.0.1:7545"));
+        
+
+           
         while (true) {
+
             System.out.println("1 - Consultar registros Log no Blockchain");
             Scanner scanner = new Scanner(System.in);
             Integer op = scanner.nextInt();
