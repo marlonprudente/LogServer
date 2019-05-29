@@ -5,6 +5,7 @@
  */
 package syslogserver;
 
+import com.syslogserver.Utils.Cryptograph;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import syslogserver.smartcontracts.generated.Greeter;
 public class SyslogServer extends Thread {
 
     ServerSocket sock;
+    Cryptograph cp ;
     DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
     Date date = new Date();
     List<String> logToBlockChain = new ArrayList<>(); //list of log
@@ -51,6 +53,7 @@ public class SyslogServer extends Thread {
             Greeter contract = Greeter.load("0x487455333Cf07585AE0Ff43eEc37C91251220f0f", web3j, credentials, contractGasProvider);
             while (true) {
                 Socket socket = sock.accept();
+                cp = new Cryptograph("tccmarlonprudente");
                 FileWriter arquivo = new FileWriter("logs/" + dateFormat.format(date) + ".log", true);
 
                 if (socket != null) {
@@ -70,7 +73,7 @@ public class SyslogServer extends Thread {
                         for (String l : logToBlockChain) {
                             System.out.println("lista: " + l);
                             TransactionReceipt transactionReceipt
-                                    = contract.newGreeting(l).send();
+                                    = contract.newGreeting(/**cp.encrypt(l)*/ l).send();
                             System.out.println(transactionReceipt.getTransactionHash()); //Salvar Hash
                             arquivo.write(transactionReceipt.getTransactionHash());
                             arquivo.write(System.lineSeparator());
