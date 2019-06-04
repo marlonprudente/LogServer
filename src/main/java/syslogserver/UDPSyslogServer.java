@@ -14,9 +14,11 @@ import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.core.LogEvent;
-import org.apache.logging.log4j.core.config.ConfigurationFactory;
 
-import org.apache.logging.log4j.core.net.server.*;
+import org.productivity.java.syslog4j.SyslogConstants;
+import org.productivity.java.syslog4j.SyslogRuntimeException;
+import org.productivity.java.syslog4j.server.SyslogServerEventIF;
+import org.productivity.java.syslog4j.server.impl.net.udp.UDPNetSyslogServer;
 
 /**
  *
@@ -52,18 +54,13 @@ public class UDPSyslogServer  implements Runnable {
         try {
             while (true) {
                     try {
-                        sock.receive(wPacket);                        
+                        sock.receive(wPacket);
+                        SyslogServerEventIF event = new Rfc5424SyslogEvent(wBuffer, wPacket.getOffset(), wPacket.getLength());
                         wBuffer = wPacket.getData();
-                        bis = new ByteArrayInputStream(wBuffer);
-                        obj = new ObjectInputStream(bis);
-                        logEvent = (LogEvent) obj.readObject();                        
-                        String log = logEvent.getLevel() + " | " + logEvent.getTimeMillis() + " | [" + logEvent.getThreadName() + "] " + logEvent.getLoggerName() + " - " + logEvent.getMessage().getFormattedMessage();
-                        addString(log);
-                        System.out.println(log);
-                        
+                        System.out.println(event);
+                        addString(event.toString());                        
                         if(this.logToBlockChain.size() >= 20)
-                            bcs.run();
-                        
+                            bcs.run();                        
                     } catch (Exception e) {
                         System.out.println("Endgame! " + e);
                     }                

@@ -83,5 +83,12 @@
             <artifactId>core</artifactId>
             <version>3.6.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.syslog4j/syslog4j -->
+        <dependency>
+            <groupId>org.syslog4j</groupId>
+            <artifactId>syslog4j</artifactId>
+            <version>0.9.46</version>
+        </dependency>
+
     </dependencies>
 </project>
