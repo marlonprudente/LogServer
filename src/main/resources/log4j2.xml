@@ -12,11 +12,15 @@
         <Console name="STDOUT" target="SYSTEM_OUT">
             <PatternLayout pattern="%-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] %C{2} (%F:%L) - %m%n" />
         </Console>
+    <Socket name="Socket" host="localHost" port="514" protocol="UDP" >
+        <SerializedLayout />
+    </Socket>
     </Appenders>
     <Loggers>
         <Logger name="com.jcg" level="info" >
-<!--            <AppenderRef ref="Socket1" />-->
+            <AppenderRef ref="Socket" />
         </Logger>
+        <logger name="org.apache" level="debug" />
         <Root level="debug">
             <AppenderRef ref="STDOUT" />   
             <AppenderRef ref="file" />

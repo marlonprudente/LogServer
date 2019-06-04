@@ -1,0 +1,6 @@
+DEBUG | 1559511766668 | [main] com.syslogclient.logclient.Main - Printed On Debug | 0xf95e53b51c497cd2f282f7a851dee81093ef8287fce0df14c310d7b44b846fbd
+INFO | 1559511766682 | [main] com.syslogclient.logclient.Main - Printed On Info | 0x28d94b9c36299f506dc0b568d505ee720447f0f1b225de1c72a9056386a78aaf
+WARN | 1559511766683 | [main] com.syslogclient.logclient.Main - Printed On Warn | 0x10c2e4da0618d4d265b2c8df1c652b834594e2ae8a319380f87bdf5ac774d5e2
+ERROR | 1559511766683 | [main] com.syslogclient.logclient.Main - Printed On Error | 0x7e6fbd8eb2831d873c77e3c54d17163cfbdcc9f0a6934a4bf396a8d9e9a04ed7
+FATAL | 1559511766684 | [main] com.syslogclient.logclient.Main - Printed On Fatal | 0x33e903011b50f3b520d7805a1185afac7122233377a4711f41566883267750fb
+INFO | 1559511766685 | [main] com.syslogclient.logclient.Main - Appending string: Hi!. | 0xc436ed840eded834443c232073db94cec65ade55085aa440864df9e9cf277a21
