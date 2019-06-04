@@ -10,8 +10,8 @@ import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
-import syslogserver.BlockchainSender;
-import syslogserver.SyslogServer;
+import syslogserver.*;
+
 
 /**
  *
@@ -21,13 +21,16 @@ public class Server {
 
     public static void main(String[] args) throws IOException {
 
-        DatagramSocket ss = new DatagramSocket(514);
+        DatagramSocket ds = new DatagramSocket(514);
+        ServerSocket ss = new ServerSocket(514);
         List<String> log = new ArrayList<>();
         
         System.out.println("Iniciando Servidor...");
         
-        SyslogServer tcp = new SyslogServer(ss, log);
-        tcp.run();
+        UDPSyslogServer udp = new UDPSyslogServer(ds, log);
+        udp.run();
+        //TCPSyslogServer tcp = new TCPSyslogServer(ss);
+        //tcp.run();
         System.out.println("Servidor Iniciado!");
     }
 

@@ -1,30 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration xmlns="http://logging.apache.org/log4j/2.0/config">
-    <Properties>
-        <Property name="basePath">../Log4j2Example/logs</Property>
-    </Properties>
+<Configuration status="warn" name="SocketServerLog" monitorInterval="30">
     <Appenders>
-        <!-- File Appender -->
-        <File name="file" fileName="${basePath}/logfile.log" append="true">
+    <RollingRandomAccessFile name="RollingRandomAccessFile" fileName="logs/info.log"
+                 filePattern="logs/$${date:yyyy-MM}/info-%d{yyyy-MM-dd-HH}-%i.log.gz">
+      <PatternLayout>
+        <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="6" modulate="true"/>
+        <SizeBasedTriggeringPolicy size="25 MB"/>
+      </Policies>
+    </RollingRandomAccessFile>
+<!--         File Appender 
+        <File name="file" fileName="logs/logfile.log" append="true">
             <PatternLayout pattern="%-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] %C{2} (%F:%L) - %m%n" />
         </File>
-        <!-- Console Appender -->
+         Console Appender 
         <Console name="STDOUT" target="SYSTEM_OUT">
             <PatternLayout pattern="%-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] %C{2} (%F:%L) - %m%n" />
         </Console>
-    <Socket name="Socket" host="localHost" port="514" protocol="UDP" >
-        <SerializedLayout />
-    </Socket>
+        <Socket name="Socket" host="localHost" port="514" protocol="UDP" >
+            <SerializedLayout />
+        </Socket>-->
     </Appenders>
     <Loggers>
-        <Logger name="com.jcg" level="info" >
+<!--        <Logger name="com.jcg" level="info" >
             <AppenderRef ref="Socket" />
         </Logger>
-        <logger name="org.apache" level="debug" />
-        <Root level="debug">
-            <AppenderRef ref="STDOUT" />   
-            <AppenderRef ref="file" />
-         
+        <logger name="org.apache" level="debug" />-->
+        <Root level="info">  
+            <AppenderRef ref="RollingRandomAccessFile" />         
         </Root>
     </Loggers>
 </Configuration>
