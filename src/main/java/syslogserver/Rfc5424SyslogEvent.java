@@ -22,6 +22,7 @@
 package syslogserver;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -62,15 +63,23 @@ public class Rfc5424SyslogEvent implements SyslogServerEventIF {
         System.arraycopy(data, offset, raw, 0, length);
         int startPos = 0;
         int endPos = -1;
-
-        endPos = searchChar(raw, startPos, SP);
+        System.out.println(">" + new String(raw, StandardCharsets.UTF_8));
+        endPos = searchChar(raw, startPos, ' ');
+        if(endPos > 6){
+            endPos = searchChar(raw, startPos, '>');
+                    endPos++;
+        }
         prioVersion = getString(raw, startPos, endPos);
 
         startPos = endPos + 1;
         endPos = searchChar(raw, startPos, ' ');
+        if((endPos - startPos) < 19){
+            startPos--;
+            endPos = 19;
+        }
         timestamp = getString(raw, startPos, endPos);
 
-        startPos = endPos + 1;
+        startPos  = endPos + 1;
         endPos = searchChar(raw, startPos, ' ');
         host = getString(raw, startPos, endPos);
 

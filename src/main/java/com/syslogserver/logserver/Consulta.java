@@ -8,14 +8,25 @@ package com.syslogserver.logserver;
 import com.syslogserver.Utils.Cryptograph;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 import java.util.Scanner;
 import javax.crypto.NoSuchPaddingException;
 import org.bouncycastle.util.encoders.Hex;
+import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameter;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthBlock;
+import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.gas.ContractGasProvider;
+import org.web3j.tx.gas.DefaultGasProvider;
+import syslogserver.smartcontracts.generated.LogContract;
 
 /**
  *
@@ -23,24 +34,22 @@ import org.web3j.protocol.http.HttpService;
  */
 public class Consulta {
 
- 
-    
     public static void main(String[] args) throws InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
         Web3j web3j = Web3j.build(new HttpService("http://127.0.0.1:7545"));
-        Cryptograph cp = new Cryptograph("tccmarlonprudente");        
-           
+        Credentials credentials = Credentials.create("0dca2308a055cf6083c7006c2f114c3e70bf9b5e2990b69127e8729bae97e05f");
+        ContractGasProvider contractGasProvider = new DefaultGasProvider();
+        Cryptograph cp = new Cryptograph("tccmarlonprudente");
+
         while (true) {
 
-            System.out.println("1 - Consultar registros Log no Blockchain");
+            System.out.println("1 - Consultar hash's Log no Blockchain");
+            System.out.println("2 - Consultar Log no Blockchain");
             Scanner scanner = new Scanner(System.in);
             Integer op = scanner.nextInt();
-            String input;
             switch (op) {
                 case 1:
-                    System.out.println("Digite a data do dia no formato ddMMyyyy: ");
-                    input = scanner.next();
                     try {
-                        BufferedReader br = new BufferedReader(new FileReader("logs/" + input + ".log"));
+                        BufferedReader br = new BufferedReader(new FileReader("logs/logsTx.log"));
                         while (br.ready()) {
                             String linha = br.readLine();
                             System.out.println(linha);
@@ -55,6 +64,54 @@ public class Consulta {
                     } catch (Exception e) {
                         System.out.println("Erro: " + e);
                     }
+                    break;
+                case 2:
+                    try {
+
+                        FileWriter logsOnBlockChain = new FileWriter("logs/logsBlockchain.log", false);
+                        FileWriter logsTx = new FileWriter("logs/logsTx.log", false);
+                        LogContract contract
+                                = //LogContract.deploy(web3j, credentials, contractGasProvider).send();          
+                                LogContract.load("0x5806ec4540eA6377dEc792e83adD2e5667505F62", web3j, credentials, contractGasProvider);
+                        long blockCriacao = contract.getBlockCreationNumber().send().longValue();
+                        EthBlock.Block bloco = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, true).send().getBlock();
+                        long ultimoBloco = Integer.parseInt(bloco.getNumber().toString());
+
+                        for (long i = blockCriacao; i <= ultimoBloco; i++) {
+                            EthBlock.Block bl = web3j.ethGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(i)), true).send().getBlock();
+                            List<EthBlock.TransactionResult> txlist = bl.getTransactions();
+                            for (EthBlock.TransactionResult l : txlist) {
+                                Transaction t = (Transaction) l.get();
+                                System.out.println("De: " + t.getFrom());
+                                System.out.println("Para: " + t.getTo());
+                                if (t.getFrom().equalsIgnoreCase("0xeD5F192fbF2c648c467DF93A47a5DAA4d8e6bDB4")) {
+                                    if (i != blockCriacao) {
+                                        if (!t.getTo().equalsIgnoreCase("0x5806ec4540ea6377dec792e83add2e5667505f62")) {
+                                            break;
+                                        }
+                                        logsTx.write(t.getHash());
+                                        logsTx.write(System.lineSeparator()); 
+                                        String data = web3j.ethGetTransactionByHash(t.getHash()).send().getTransaction().get().getInput();
+                                        byte[] bytes = Hex.decode(data.substring(2));
+                                        String decodedData = new String(bytes, "UTF-8");
+                                        decodedData = decodedData.substring(68, decodedData.length());
+                                        String[] listaChain = decodedData.split(" ; ");
+                                        for (String a : listaChain) {
+                                            logsOnBlockChain.write(a);
+                                            logsOnBlockChain.write(System.lineSeparator());
+                                            System.out.println("=> " + a);
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                        logsOnBlockChain.close();
+                        logsTx.close();
+                    } catch (Exception e) {
+                        System.out.println("Erro: " + e);
+                    }
+                    
                     break;
                 default:
                     System.out.println("Opção Inválida!");

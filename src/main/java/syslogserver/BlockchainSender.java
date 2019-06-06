@@ -6,7 +6,11 @@
 package syslogserver;
 
 import com.syslogserver.Utils.Cryptograph;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,17 +48,32 @@ public class BlockchainSender implements Runnable {
         return (this.logToBlockChain.isEmpty());
     }
     
+        private void saveList() {
+        System.out.println("Tamanho lista BlockchainSender: " +  this.logToBlockChain.size());
+        File arq = new File("listaLogs.bak");
+        try {
+            arq.delete();
+            arq.createNewFile();
+
+            ObjectOutputStream objOutput = new ObjectOutputStream(new FileOutputStream(arq));
+            objOutput.writeObject(logToBlockChain);
+            objOutput.close();
+
+        } catch (IOException erro) {
+            System.out.printf("Erro ao salvar .bak de lista: ", erro.getMessage());
+        }
+    }
+    
     public synchronized void limpaLista(){
         this.logToBlockChain.clear();
+        saveList();
     }
 
     @Override
     public void run() {
                 try {
-                    System.out.println("Oi");
                     if(!verificaLista()){
-                    System.out.println("Entrei");
-                    FileWriter arquivo = new FileWriter("logs/logsBlockChain.log", true);
+                    FileWriter arquivo = new FileWriter("logs/logsTx.log", true);
                     //ADD to Blockchain
                     System.out.println("Adicionando ao Blockchain...");
                     String joinLogs = String.join(" ; ", logToBlockChain);
