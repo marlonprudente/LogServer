@@ -35,8 +35,9 @@ import syslogserver.smartcontracts.generated.LogContract;
 public class Consulta {
 
     public static void main(String[] args) throws InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
-        Web3j web3j = Web3j.build(new HttpService("http://127.0.0.1:7545"));
-        Credentials credentials = Credentials.create("0dca2308a055cf6083c7006c2f114c3e70bf9b5e2990b69127e8729bae97e05f");
+        Web3j web3j = //Web3j.build(new HttpService("http://127.0.0.1:7545"));
+                 Web3j.build(new HttpService("https://rinkeby.infura.io/v3/f87fd81cbde84e7fbffcdb1d88d1f68e"));
+        Credentials credentials = Credentials.create("F94772BE8D828FE1AB39E0EDD9BDF7FE98B1E4BF287817187092D810983FFA14");
         ContractGasProvider contractGasProvider = new DefaultGasProvider();
         Cryptograph cp = new Cryptograph("tccmarlonprudente");
 
@@ -72,21 +73,22 @@ public class Consulta {
                         FileWriter logsTx = new FileWriter("logs/logsTx.log", false);
                         LogContract contract
                                 = //LogContract.deploy(web3j, credentials, contractGasProvider).send();          
-                                LogContract.load("0x5806ec4540eA6377dEc792e83adD2e5667505F62", web3j, credentials, contractGasProvider);
+                                LogContract.load("0x718270ef3259d81f1ca0d00b11d2fc27e7a3b9f4", web3j, credentials, contractGasProvider);
                         long blockCriacao = contract.getBlockCreationNumber().send().longValue();
                         EthBlock.Block bloco = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, true).send().getBlock();
                         long ultimoBloco = Integer.parseInt(bloco.getNumber().toString());
-
+                        String myAddress = credentials.getAddress();
+                        String contractAddress = contract.getContractAddress();
                         for (long i = blockCriacao; i <= ultimoBloco; i++) {
                             EthBlock.Block bl = web3j.ethGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(i)), true).send().getBlock();
                             List<EthBlock.TransactionResult> txlist = bl.getTransactions();
                             for (EthBlock.TransactionResult l : txlist) {
                                 Transaction t = (Transaction) l.get();
-                                System.out.println("De: " + t.getFrom());
-                                System.out.println("Para: " + t.getTo());
-                                if (t.getFrom().equalsIgnoreCase("0xeD5F192fbF2c648c467DF93A47a5DAA4d8e6bDB4")) {
+                                //System.out.println("De: " + t.getFrom());
+                                //System.out.println("Para: " + t.getTo());
+                                if (t.getFrom().equalsIgnoreCase(myAddress)) {
                                     if (i != blockCriacao) {
-                                        if (!t.getTo().equalsIgnoreCase("0x5806ec4540ea6377dec792e83add2e5667505f62")) {
+                                        if (!t.getTo().equalsIgnoreCase(contractAddress)) {
                                             break;
                                         }
                                         logsTx.write(t.getHash());

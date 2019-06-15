@@ -34,12 +34,12 @@ public class UDPSyslogServer implements Runnable {
     private final int maxBufferSize = 1024 * 65 + 1024;
     DatagramSocket sock;
     DatagramPacket wPacket = null;
-    LogEvent logEvent = null;
+    //LogEvent logEvent = null;
     ObjectInputStream obj = null;
     ByteArrayInputStream bis = null;
     byte[] wBuffer = null;
     List<String> logToBlockChain = new ArrayList<>(); //list of log   
-    BlockchainSender bcs;
+
 
     public UDPSyslogServer(DatagramSocket serverSocket, List<String> lista) throws IOException {
         //ConfigurationFactory.setConfigurationFactory(new ServerConfigurationFactory(""));
@@ -116,8 +116,10 @@ public class UDPSyslogServer implements Runnable {
                     addString(log);
                     System.out.println(log);
                     if (this.logToBlockChain.size() >= 20) {
-                        this.bcs = new BlockchainSender(this.logToBlockChain);
-                        bcs.run();
+                        List<String> sendList = this.logToBlockChain;
+                        new BlockchainSender(sendList).start();
+                        this.logToBlockChain.clear();
+                        saveList();
                     }
                 } catch (Exception e) {
                     System.out.println("Endgame! " + e);
