@@ -6,17 +6,19 @@
 package syslogserver;
 
 import com.syslogserver.Utils.Cryptograph;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.gas.ContractGasProvider;
@@ -42,39 +44,17 @@ public class BlockchainSender extends Thread {
     public BlockchainSender(List<String> listaLog) {
         this.logToBlockChain = listaLog;
         contract = LogContract.load("0x718270ef3259d81f1ca0d00b11d2fc27e7a3b9f4", web3j, credentials, contractGasProvider);
-    }
+        try{
+            cp = new Cryptograph("tccmarlonprudente");
+        }catch(Exception e){
+            System.out.println("Erro: " + e);
+        }        
+    }  
+
     
     public boolean verificaLista(){
         return (this.logToBlockChain.isEmpty());
     }
-    
-//        private void saveList() {
-//        System.out.println("Tamanho lista BlockchainSender: " +  this.logToBlockChain.size());
-//        File arq = new File("listaLogs.bak");
-//        try {
-//            arq.delete();
-//            arq.createNewFile();
-//
-//            ObjectOutputStream objOutput = new ObjectOutputStream(new FileOutputStream(arq));
-//            objOutput.writeObject(logToBlockChain);
-//            objOutput.close();
-//
-//        } catch (IOException erro) {
-//            System.out.printf("Erro ao salvar .bak de lista: ", erro.getMessage());
-//        }
-//    }
-//    
-//    public synchronized void limpaLista(){
-//        this.logToBlockChain.clear();
-//        saveList();
-//    }
-
-//    @Override
-//    public void run() {
-//          
-//
-//
-//    }
     
     @Override
     public void start(){
@@ -93,5 +73,7 @@ public class BlockchainSender extends Thread {
                     System.out.println("Erro: " + e);
                 }
     }
+    
+    
 
 }

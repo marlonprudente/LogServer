@@ -5,6 +5,7 @@
  */
 package syslogserver;
 
+import com.syslogserver.Utils.ContractUtils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,12 +19,6 @@ import java.net.DatagramSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.core.LogEvent;
-
-import org.productivity.java.syslog4j.SyslogConstants;
-import org.productivity.java.syslog4j.SyslogRuntimeException;
-import org.productivity.java.syslog4j.server.SyslogServerEventIF;
-import org.productivity.java.syslog4j.server.impl.net.udp.UDPNetSyslogServer;
 
 /**
  *
@@ -34,6 +29,7 @@ public class UDPSyslogServer implements Runnable {
     private final int maxBufferSize = 1024 * 65 + 1024;
     DatagramSocket sock;
     DatagramPacket wPacket = null;
+    ContractUtils contractUtils = null;
     //LogEvent logEvent = null;
     ObjectInputStream obj = null;
     ByteArrayInputStream bis = null;
@@ -45,6 +41,7 @@ public class UDPSyslogServer implements Runnable {
         //ConfigurationFactory.setConfigurationFactory(new ServerConfigurationFactory(""));
         this.sock = serverSocket;
         this.logToBlockChain = lista;
+        this.contractUtils = new ContractUtils();
         if(lista.isEmpty()){
             this.logToBlockChain = getList();
         }
@@ -103,7 +100,7 @@ public class UDPSyslogServer implements Runnable {
         return lista;
 
     }
-
+    
     @Override
     public void run() {
         try {
@@ -115,7 +112,7 @@ public class UDPSyslogServer implements Runnable {
                     String log = new String(wBuffer, StandardCharsets.UTF_8).trim();
                     addString(log);
                     System.out.println(log);
-                    if (this.logToBlockChain.size() >= 20) {
+                    if (contractUtils.verificaLimiteEnvio(logToBlockChain)) {
                         List<String> sendList = this.logToBlockChain;
                         new BlockchainSender(sendList).start();
                         this.logToBlockChain.clear();
