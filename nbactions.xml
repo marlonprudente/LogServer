@@ -10,7 +10,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.5.0:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Dlog4j.configurationFile="file://E:/Documents/NetBeansProjects/LogServer/src/main/resources/log4j2.xml" -classpath %classpath ${packageClassName}</exec.args>
+                <exec.args>-Dlog4j.configurationFile="file://E:/Documents/NetBeansProjects/LogServer/src/main/resources/log4j2.xml" -classpath %classpath com.syslogserver.logserver.Server</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>

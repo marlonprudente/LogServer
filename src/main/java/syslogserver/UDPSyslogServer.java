@@ -72,7 +72,6 @@ public class UDPSyslogServer implements Runnable {
         try {
             arq.delete();
             arq.createNewFile();
-
             ObjectOutputStream objOutput = new ObjectOutputStream(new FileOutputStream(arq));
             objOutput.writeObject(logToBlockChain);
             objOutput.close();
@@ -106,15 +105,13 @@ public class UDPSyslogServer implements Runnable {
         try {
             while (true) {
                 try {
-                    sock.receive(wPacket);
-                    
+                    sock.receive(wPacket);                   
                     wBuffer = wPacket.getData();
                     String log = new String(wBuffer, StandardCharsets.UTF_8).trim();
                     addString(log);
                     System.out.println(log);
-                    if (contractUtils.verificaLimiteEnvio(logToBlockChain)) {
-                        List<String> sendList = this.logToBlockChain;
-                        new BlockchainSender(sendList).start();
+                    if (contractUtils.verificaLimiteEnvio(logToBlockChain)) {                        
+                        new BlockchainSender(this.logToBlockChain).start();
                         this.logToBlockChain.clear();
                         saveList();
                     }

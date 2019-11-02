@@ -5,16 +5,25 @@
  */
 package com.syslogserver.Utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.bouncycastle.util.encoders.Hex;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.Credentials;
+import static org.web3j.crypto.Hash.sha3;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.http.HttpService;
@@ -32,24 +41,33 @@ public class ContractUtils {
     Credentials credentials = Credentials.create("F94772BE8D828FE1AB39E0EDD9BDF7FE98B1E4BF287817187092D810983FFA14");
     ContractGasProvider contractGasProvider = new DefaultGasProvider();
     LogContract contract;
+    String lastHash;
 
     public ContractUtils() {
-        contract = LogContract.load("0x718270ef3259d81f1ca0d00b11d2fc27e7a3b9f4", web3j, credentials, contractGasProvider);
+        contract = LogContract.load("0xEa399bA8C1D6565279F3A24321d871B21f69eD0F", web3j, credentials, contractGasProvider);
+
     }
 
-    private BigInteger estimateGas(List<String> listaLog) {
+    private void getLastHash() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("logs/hashs.log"));
+            while (br.ready()) {
+                lastHash = br.readLine();
+            }
+            br.close();
+        } catch (Exception e) {
+            System.out.println("Erro: " + e);
+        }
+    }
+
+    private BigInteger estimateGas(List<String> listaLog, String currentHash) {
         String joinLogs = String.join(" ; ", listaLog);
-        System.out.println("String to Contract: " + joinLogs);
         Function function = new Function("sendLog",
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(joinLogs)),
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(joinLogs), new org.web3j.abi.datatypes.generated.Bytes32(sha3((currentHash + joinLogs).getBytes()))),
                 Collections.<TypeReference<?>>emptyList());
         String functionEncoder = FunctionEncoder.encode(function);
-        System.out.println("Function Encoder: " + functionEncoder);
         BigInteger gasLimit = contractGasProvider.getGasLimit("sendLog");
         BigInteger gasPrice = contractGasProvider.getGasPrice("sendLog");
-        
-        System.out.println("Gas Limit: " + gasLimit);
-        System.out.println("Gas Price: " + gasPrice);
         BigInteger estimateGas = BigInteger.ZERO;
         try {
             estimateGas = web3j.ethEstimateGas(Transaction.createFunctionCallTransaction(credentials.getAddress(), null, gasPrice, gasLimit, contract.getContractAddress(), functionEncoder)).send().getAmountUsed();
@@ -60,16 +78,15 @@ public class ContractUtils {
     }
 
     public boolean verificaLimiteEnvio(List<String> listaLog) {
+        getLastHash();
         BigInteger gasLimit = contractGasProvider.getGasLimit("sendLog").subtract(BigInteger.valueOf(300000));
-        BigInteger estimatedGas = estimateGas(listaLog);       
-        System.out.println("Gas Limit - 300000: " + gasLimit);
-        System.out.println("Estimated Gas: " + estimatedGas);
+        BigInteger estimatedGas = estimateGas(listaLog, lastHash);
+        System.out.println("GAS: " + estimatedGas);
 
-        if (estimatedGas.compareTo(gasLimit) > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        boolean retorno = estimatedGas.compareTo(gasLimit) > 0;
+        System.out.println("Condição GAS: " + retorno);
+
+        return retorno;
     }
 
 }
