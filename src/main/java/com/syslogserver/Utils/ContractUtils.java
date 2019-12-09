@@ -44,7 +44,7 @@ public class ContractUtils {
     String lastHash;
 
     public ContractUtils() {
-        contract = LogContract.load("0xEa399bA8C1D6565279F3A24321d871B21f69eD0F", web3j, credentials, contractGasProvider);
+        contract = LogContract.load("0xc2bd0Bf6603A7413efC2c35Ceeab7713AD4eC168", web3j, credentials, contractGasProvider);
 
     }
 

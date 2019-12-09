@@ -54,7 +54,7 @@ public class BlockchainSender extends Thread {
     public BlockchainSender(List<String> listaLog) {
         this.logToBlockChain = listaLog;
         localChain = getLocalChain();
-        contract = LogContract.load("0xEa399bA8C1D6565279F3A24321d871B21f69eD0F", web3j, credentials, contractGasProvider);
+        contract = LogContract.load("0xc2bd0Bf6603A7413efC2c35Ceeab7713AD4eC168", web3j, credentials, contractGasProvider);
         //LogContract.load("0x718270ef3259d81f1ca0d00b11d2fc27e7a3b9f4", web3j, credentials, contractGasProvider);
         try {
             cp = new Cryptograph("tccmarlonprudente");
@@ -104,7 +104,6 @@ public class BlockchainSender extends Thread {
         try {
             if (!verificaLista()) {
                 FileWriter arquivo = new FileWriter("logs/logsTx.log", true);
-
                 //ADD to Blockchain
                 String joinLogs = String.join(" ; ", logToBlockChain);
                 localChain.addBlock(joinLogs);
@@ -114,6 +113,8 @@ public class BlockchainSender extends Thread {
                 arquivo.write(transactionReceipt.getTransactionHash());
                 arquivo.write(System.lineSeparator());
                 arquivo.close();
+                
+
             }
         } catch (Exception e) {
             System.out.println("Erro: " + e);

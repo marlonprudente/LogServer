@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import org.bouncycastle.util.encoders.Hex;
 import static org.web3j.crypto.Hash.sha3;
 
@@ -60,20 +60,25 @@ public class LocalChain implements Serializable {
         Block newBlock = new Block(getLatestBlock().getIndex() + 1, date.toInstant(), data, this.getLatestBlock().hash);
         this.chain.add(newBlock);
     }
+    
+    public int getLocalChainSize(){
+        return this.chain.size();
+    }
+    
+    public Block getBlockByIndex(int index){
+        return this.chain.get(index);
+    }
 
-    public boolean isChainValid() {
-        for (int blocks = 1; blocks < this.chain.size(); blocks++) {
+    public boolean isChainValid() {        
+        for (int blocks = 1; blocks < this.chain.size(); blocks++) {            
             Block currentBlock = this.chain.get(blocks);
-            Block previousBlock = this.chain.get(blocks - 1);
-            
-            if(!currentBlock.hash.equals(currentBlock.calculateHash())){
+            Block previousBlock = this.chain.get(blocks - 1);            
+            if(!Arrays.equals(currentBlock.hash, currentBlock.calculateHash())){
+                return false;
+            }            
+            if(!Arrays.equals(currentBlock.previousHash, previousBlock.hash)){
                 return false;
             }
-            
-            if(!currentBlock.previousHash.equals(previousBlock.hash)){
-                return false;
-            }
-
         }
         return true;
     }

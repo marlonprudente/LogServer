@@ -116,7 +116,7 @@ public class UDPSyslogServer implements Runnable {
                         saveList();
                     }
                 } catch (Exception e) {
-                    System.out.println("Endgame! " + e);
+                    System.out.println("Erro no Socket UDP: " + e);
                 }
             }
         } catch (Exception ex) {
